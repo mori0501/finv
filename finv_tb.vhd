@@ -39,8 +39,6 @@ BEGIN
     file infile :text open read_mode is "/home/morihiro/2014-winter/fpu/finv/testcase.txt";
     file outfile :text open write_mode is "/home/morihiro/2014-winter/fpu/finv/sim.txt";
 
-    --file infile : text is in "/home/bessho/ono/CPU/FINV/FINVVHDL/deb.txt";
-    --file outfile : text is out "/home/bessho/ono/CPU/FINV/FINVHDL/sim.txt";
     variable my_line, out_line : LINE;
     variable a,b : std_logic_vector(31 downto 0);
   BEGIN

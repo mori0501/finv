@@ -66,6 +66,7 @@ architecture blackbox of finv is
   signal exp : unsigned(7 downto 0);
   signal ans : unsigned(31 downto 0);
   signal temp : unsigned(35 downto 0);
+  signal flag : std_logic_vector(1 downto 0);
 begin
   table : finv_table port map(
     clk => clk,
@@ -77,28 +78,45 @@ begin
     variable d : unsigned(12 downto 0);
     variable manti : unsigned(24 downto 0);
     variable uiv : unsigned(31 downto 0);
+    variable ifmanti : unsigned(23 downto 0);
   begin
     addr <= unsigned(i(22 downto 12));
     if rising_edge(clk) then
       case state is
         when "00" =>
+          if i(22 downto 0) = (x"00000" & "000") then
+            flag <= "00";
+          elsif i(11 downto 0) = x"000" then
+            flag <= "01";
+          else
+            flag <= "10";
+          end if;
           state <= "01";
           ui <= unsigned(i);
         when "01" =>
           y := "1" & (data(35 downto 13));
           d := data(12 downto 0);
           uiv := ui;
-          manti := y + shift_right(d * (4096 - uiv(11 downto 0)),12);
-          frac <= manti(22 downto 0);
+          if flag = "00" then
+            exp <= 254 - uiv(30 downto 23);
+            ifmanti := y + d;
+            frac <= ifmanti(22 downto 0);
+          elsif flag = "01" then
+            exp <= 253 - uiv(30 downto 23);
+            ifmanti := y + d;
+            frac <= ifmanti(22 downto 0);
+          else
+            manti := y + shift_right(d * (4096 - uiv(11 downto 0)),12);
+            exp <= 253 - uiv(30 downto 23);
+            frac <= manti(22 downto 0);
+          end if;
           sign <= uiv(31 downto 31);
-          exp <= 253 - uiv(30 downto 23);
           state <= "10";
         when "10" =>
           o <= std_logic_vector(sign & exp & frac);
           state <= "00";
         when others =>
-          temp <= data;
-          state <= "01";
+          state <= "00";
       end case;
     end if;
   end process;

@@ -122,7 +122,7 @@ uint32_t finv(uint32_t i){
   }else{
     exp = 253 - downto(i,30,23);
   }
-  mant = y + ((d * ((1 << KAI) - (downto(i,KAI-1,0)))) >> KAI);
+  mant = y + ((d * ((1 << 12) - (downto(i,11,0)))) >> 12);
   ans = make_ans(sign,exp,downto(mant,22,0));
   return ans;
 }
